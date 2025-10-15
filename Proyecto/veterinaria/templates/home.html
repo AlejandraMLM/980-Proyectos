@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}  
+<div class="row mb-4">  
+    <div class="col-12 text-center">  
+        <h1 class="display-4 text-dark">Bienvenido a MyVetPet</h1>  <!-- Título principal -->
+        <p class="lead text-muted">Cuidado veterinario profesional para tus mejores amigos</p>  <!-- Subtítulo -->
+    </div>
+</div>
+
+<div class="row">  
+    <div class="col-12">  
+        <h2 class="mb-4 text-dark">Nuestros Servicios Veterinarios</h2>  <!-- Título de sección -->
+    </div>
+</div>
+
+<div class="row">  
+    {% for servicio in servicios %}  
+    <div class="col-md-4 mb-4">  
+        <div class="card servicio-card h-100">  
+            <div class="card-body">  
+                <h5 class="card-title text-dark">{{ servicio.nombre }}</h5>  <!-- Nombre del servicio -->
+                <p class="card-text text-muted">{{ servicio.descripcion }}</p>  <!-- Descripción del servicio -->
+                <p class="card-text">  <!-- Información de precio y duración -->
+                    <strong class="text-dark">Precio: Q{{ servicio.precio }}</strong><br>  <!-- Precio del servicio en Quetzales -->
+                    <small class="text-muted">Duración: {{ servicio.duracion }} min</small>  <!-- Duración del servicio -->
+                </p>
+            </div>
+            <div class="card-footer bg-white">  
+                {% if servicio.disponible %}  <!-- Verifica si el servicio está disponible -->
+                    <span class="badge medical-badge">Disponible</span>  
+                    {% if user.is_authenticated %}  <!-- Verifica si el usuario está autenticado -->
+                        <a href="{% url 'citas:agregar_al_carrito' servicio.id %}" class="btn btn-medical btn-sm float-end">Agendar Cita</a>
+                    {% else %}  <!-- Si el usuario no está autenticado -->
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm float-end">Iniciar sesión para agendar</a>  <!-- Enlace al login -->
+                    {% endif %}  
+                {% else %}  <!-- Si el servicio no está disponible -->
+                    <span class="badge bg-secondary">No disponible</span> 
+                {% endif %} 
+            </div>
+        </div>
+    </div>
+    {% empty %}  
+    <div class="col-12">  
+        <div class="alert alert-info">Próximamente tendremos servicios disponibles.</div>  
+    </div>
+    {% endfor %}  
+</div>
+
+<!-- Sección de información adicional --> 
+<div class="row mt-5">  
+    <div class="col-12">  
+        <div class="card border-0" style="background-color: #f8f9fa;">  
+            <div class="card-body text-center">  
+                <h5 class="card-title">Servicio Veterinario de Calidad</h5>  
+                <p class="card-text">  
+                    En MyVetPet nos dedicamos a proporcionar la mejor atención médica para tus mascotas. 
+                    Contamos con equipo moderno y personal calificado.
+                </p>
+                <div class="row mt-3">  
+                    <div class="col-md-4">  
+                        <span class="fw-bold">Ubicación:</span><br>  
+                        Guatemala City  
+                    </div>
+                    <div class="col-md-4">  
+                        <span class="fw-bold">Teléfono:</span><br>  
+                        +502 1234-5678  <!-- Número de teléfono -->
+                    </div>
+                    <div class="col-md-4">  
+                        <span class="fw-bold">Horario:</span><br>  
+                        <!-- Horario de atención -->
+                        Lun-Vie: 8:00-19:00 <br>
+                        Sab-Dom: 9:00-15:00 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
