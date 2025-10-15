@@ -1,0 +1,83 @@
+{% extends 'base.html' %} 
+{% load custom_filters %}
+
+{% block content %}  
+<div class="container mt-4">  
+    <div class="row justify-content-center">  
+        <div class="col-md-8">  
+            <div class="card shadow">
+                <div class="card-header text-white" style="background: linear-gradient(135deg, #1e3a5f, #2c5282);">  
+                    <div class="text-center">  
+                        <h4 class="mb-0">Agendar Cita</h4>
+                        <small>Completa los datos para agendar tu cita</small>
+                    </div>
+                </div>
+                <div class="card-body p-4"> 
+                    <form method="post">  
+                        {% csrf_token %}  
+                        
+                        <div class="mb-3"> 
+                            <label class="form-label fw-bold">Fecha y Hora</label>
+                            {{ form.fecha }}
+                            {% if form.fecha.errors %}  
+                            <div class="text-danger">{{ form.fecha.errors }}</div>  
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3"> 
+                            <label class="form-label fw-bold">Notas Adicionales</label>
+                            {{ form.notas }} 
+                            {% if form.notas.errors %} 
+                            <div class="text-danger">{{ form.notas.errors }}</div>  
+                            {% endif %}
+                            <div class="form-text">
+                                Opcional: Describe cualquier información adicional sobre tu mascota o el servicio.
+                            </div>
+                        </div>
+
+                        {% if carrito_items %} 
+                        <div class="mb-4"> 
+                            <h6 class="fw-bold">Servicios a Agendar:</h6>
+                            <div class="card border-0 bg-light">  
+                                <div class="card-body"> 
+                                    {% for item in carrito_items %} 
+                                    <div class="d-flex justify-content-between align-items-center mb-2">  
+                                        <span>
+                                            <strong>{{ item.servicio.nombre }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ item.servicio.descripcion }}</small>
+                                        </span>
+                                        <span>Q{{ item.servicio.precio|floatformat:2 }}</span>
+                                    </div>
+                                    {% endfor %} 
+                                    <hr> 
+                                    <div class="d-flex justify-content-between"> 
+                                        <strong>Total:</strong> 
+                                        <strong>Q{{ total|floatformat:2 }}</strong>  
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Nota:</strong> Se creará una cita separada para cada servicio en tu carrito.
+                            </div>
+                        </div>
+                        {% endif %} 
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end"> 
+                            <a href="{% url 'citas:ver_carrito' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-2"></i>Volver al Carrito  
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-calendar-check me-2"></i>Confirmar Citas
+                            </button>
+                        </div>
+                    </form>  
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+     
