@@ -1,0 +1,85 @@
+{% extends 'administrador/base.html' %} 
+
+{% block content %}  
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">  
+    <h1 class="h2">Agregar Nuevo Servicio</h1>  <!-- Título de la página -->
+    <a href="{% url 'administrador:gestion_servicios' %}" class="btn btn-secondary">  <!-- Botón para volver -->
+        <i class="fas fa-arrow-left me-2"></i>Volver a Servicios
+    </a>
+</div>
+
+<div class="card shadow">  
+    <div class="card-body">  
+        <form method="post" enctype="multipart/form-data">  
+            {% csrf_token %}  
+            
+            <div class="row">  
+                <div class="col-md-6">  
+                    <div class="mb-3">  
+                        <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre del Servicio</label>  <!-- Etiqueta -->
+                        {{ form.nombre }}  
+                        {% if form.nombre.errors %}  
+                        <div class="text-danger">{{ form.nombre.errors }}</div>  
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">  
+                    <div class="mb-3">  
+                        <label for="{{ form.precio.id_for_label }}" class="form-label">Precio (Q)</label>  <!-- Etiqueta -->
+                        {{ form.precio }}  
+                        {% if form.precio.errors %}  
+                        <div class="text-danger">{{ form.precio.errors }}</div>  
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+                <textarea name="descripcion" class="form-control" rows="3" 
+                    placeholder="Descripción del servicio">{{ form.descripcion.value|default:'' }}</textarea>
+                {% if form.descripcion.errors %}
+                <div class="text-danger">{{ form.descripcion.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="row">  
+                <div class="col-md-6">  
+                    <div class="mb-3">
+                        <label for="{{ form.duracion.id_for_label }}" class="form-label">Duración (minutos)</label>
+                        <input type="number" name="duracion" class="form-control" 
+                            value="{{ form.duracion.value|default:'' }}" 
+                            placeholder="Duración en minutos">
+                        {% if form.duracion.errors %}
+                        <div class="text-danger">{{ form.duracion.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">  
+                    <div class="mb-3">  
+                        <label for="{{ form.imagen.id_for_label }}" class="form-label">Imagen</label> <!-- Etiqueta -->
+                        {{ form.imagen }}  
+                        {% if form.imagen.errors %}  
+                        <div class="text-danger">{{ form.imagen.errors }}</div>  
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3 form-check">  
+                {{ form.disponible }}  
+                <label class="form-check-label" for="{{ form.disponible.id_for_label }}">  
+                    Servicio disponible  
+                </label>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end"> 
+                <a href="{% url 'administrador:gestion_servicios' %}" class="btn btn-secondary me-md-2">Cancelar</a>  <!-- Botón cancelar -->
+                <button type="submit" class="btn btn-primary">  <!-- Botón guardar -->
+                    <i class="fas fa-save me-2"></i>Guardar Servicio 
+                </button>
+            </div>
+        </form>  
+    </div>  
+</div>  
+{% endblock %}  
