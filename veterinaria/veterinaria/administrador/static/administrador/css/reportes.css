@@ -1,0 +1,41 @@
+.reportes-wrap{ max-width:1200px; margin:16px auto; padding:0 12px; }
+.reportes-header h1{ margin:0; font-weight:700; }
+.reportes-header .muted{ color:#6b7280; margin-top:4px; }
+
+.filtros{ background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:12px; margin:16px 0; }
+.f-row{ display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; }
+.f-col{ display:flex; flex-direction:column; min-width:180px; }
+.f-col label{ font-size:12px; color:#374151; margin-bottom:4px; }
+.f-col input, .f-col select{ height:38px; padding:0 10px; border:1px solid #d1d5db; border-radius:8px; }
+.f-actions{ display:flex; gap:8px; flex-direction:row; align-items:center; }
+
+.btn-primary{ background:#2563eb; color:#fff; padding:9px 14px; border-radius:8px; text-decoration:none; border:none; cursor:pointer; }
+.btn-secondary{ background:#f3f4f6; color:#111827; padding:9px 14px; border-radius:8px; text-decoration:none; }
+.btn-export{ background:#0ea5e9; color:#fff; padding:9px 14px; border-radius:8px; text-decoration:none; }
+
+.chips{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 16px; }
+.chip{ background:#f3f4f6; border-radius:999px; padding:6px 10px; font-size:12px; color:#111827; }
+.chip-pendiente{ background:#fff7ed; }
+.chip-confirmada{ background:#ecfeff; }
+.chip-completada{ background:#ecfdf5; }
+.chip-cancelada{ background:#fef2f2; }
+
+.table-card{ background:#fff; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+.table-scroll{ overflow:auto; }
+.table{ width:100%; border-collapse:separate; border-spacing:0; min-width:860px; }
+.table thead th{ text-align:left; font-weight:600; background:#f9fafb; border-bottom:1px solid #e5e7eb; padding:10px; }
+.table tbody td{ border-bottom:1px solid #f1f5f9; padding:10px; vertical-align:top; }
+.badge{ display:inline-block; padding:3px 8px; border-radius:999px; font-size:12px; }
+.badge-pendiente{ background:#fff7ed; color:#9a3412; }
+.badge-confirmada{ background:#ecfeff; color:#0369a1; }
+.badge-completada{ background:#ecfdf5; color:#065f46; }
+.badge-cancelada{ background:#fef2f2; color:#991b1b; }
+
+.table-footer{ display:flex; align-items:center; gap:10px; padding:10px; background:#f9fafb; }
+.table-footer .muted{ color:#6b7280; font-size:12px; }
+.table-footer .spacer{ flex:1; }
+
+.muted{ color:#6b7280; }
+.small{ font-size:12px; }
+.center{ text-align:center; }
+.notas{ max-width:320px; }

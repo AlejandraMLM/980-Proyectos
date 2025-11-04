@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>Mis Citas Asignadas</h2>
+
+<form class="mb-3" method="get">
+  <div class="row g-2 align-items-end">
+    <div class="col-auto">
+      <label class="form-label">Estado</label>
+      <select name="estado" class="form-select">
+        <option value="">(Todos)</option>
+        <option value="pendiente"  {% if request.GET.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+        <option value="confirmada" {% if request.GET.estado == 'confirmada' %}selected{% endif %}>Confirmada</option>
+        <option value="cancelada"  {% if request.GET.estado == 'cancelada' %}selected{% endif %}>Cancelada</option>
+        <option value="completada" {% if request.GET.estado == 'completada' %}selected{% endif %}>Completada</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary">Filtrar</button>
+      <a class="btn btn-secondary" href="{% url 'veterinario:citas' %}">Limpiar</a>
+    </div>
+  </div>
+</form>
+
+<div class="table-responsive">
+  <table class="table table-sm table-striped align-middle">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Mascota</th>
+        <th>Cliente</th>
+        <th>Servicio</th>
+        <th>Fecha/Hora</th>
+        <th>Estado</th>
+        <th style="width: 380px;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in object_list %}
+      <tr>
+        <td>{{ c.id }}</td>
+        <td>{{ c.mascota|default:"—" }}</td>
+        <td>{{ c.usuario.get_full_name|default:c.usuario.username }}</td>
+        <td>{{ c.servicio }}</td>
+        <td>
+          {{ c.fecha|date:"d/m/Y H:i" }}<br>
+          <small class="text-muted">fin: {{ c.fecha_fin|date:"H:i" }}</small>
+        </td>
+        <td>
+          <span class="badge
+            {% if c.estado == 'pendiente' %} bg-warning text-dark
+            {% elif c.estado == 'confirmada' %} bg-info
+            {% elif c.estado == 'cancelada' %} bg-danger
+            {% elif c.estado == 'completada' %} bg-success
+            {% endif %}">
+            {{ c.get_estado_display }}
+          </span>
+        </td>
+        <td>
+          <div class="d-flex flex-wrap gap-2">
+            {% if c.mascota %}
+              {# NUEVO flujo correcto #}
+              <a href="{% url 'mascotas:atencion_nueva' c.mascota.pk %}?cita={{ c.pk }}"
+                 class="btn btn-sm btn-outline-primary">
+                Agregar historial
+              </a>
+              <a href="{% url 'mascotas:historial' c.mascota.pk %}"
+                 class="btn btn-sm btn-outline-secondary">
+                Ver historial
+              </a>
+            {% else %}
+              <button class="btn btn-sm btn-secondary" disabled>Sin mascota</button>
+            {% endif %}
+
+            <form method="post" action="{% url 'veterinario:cita_completar' c.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button class="btn btn-sm btn-success"
+                      {% if c.estado == 'cancelada' or c.estado == 'completada' %}disabled{% endif %}>
+                Marcar completada
+              </button>
+            </form>
+
+            <form method="post" action="{% url 'veterinario:cita_cancelar' c.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button class="btn btn-sm btn-outline-danger"
+                      {% if c.estado == 'completada' %}disabled{% endif %}>
+                Cancelar
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="text-center py-4">No hay citas asignadas.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}">Anterior</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}">Siguiente</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

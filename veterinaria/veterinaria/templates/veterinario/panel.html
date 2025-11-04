@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-3">Panel de Veterinario</h2>
+  <p class="text-muted">Hola {{ request.user.get_full_name|default:request.user.username }}.</p>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <div class="row g-4 align-items-center">
+
+        <!-- FOTO -->
+        <div class="col-12 col-md-3 d-flex justify-content-center">
+          {% if perfil.foto %}
+            <img src="{{ perfil.foto.url }}"
+                 alt="Foto de {{ request.user.get_full_name|default:request.user.username }}"
+                 class="rounded-circle shadow-sm"
+                 style="width:160px;height:160px;object-fit:cover;">
+          {% else %}
+            <img src="{% static 'assets/veterinarios/default.jpg' %}"
+                 alt="Foto de perfil"
+                 class="rounded-circle shadow-sm"
+                 style="width:160px;height:160px;object-fit:cover;">
+          {% endif %}
+        </div>
+
+        <!-- DETALLES -->
+        <div class="col-12 col-md-9">
+          <h5 class="mb-3">Estado actual</h5>
+
+          <div class="mb-2">
+            <span class="fw-bold">Disponible para citas:</span>
+            {% if perfil.disponible %}
+              <span class="badge bg-success ms-1">Sí</span>
+            {% else %}
+              <span class="badge bg-secondary ms-1">No</span>
+            {% endif %}
+          </div>
+
+          {% if perfil.colegiado %}
+          <div class="mb-2">
+            <span class="fw-bold">Colegiado:</span>
+            <span class="text-muted">{{ perfil.colegiado }}</span>
+          </div>
+          {% endif %}
+
+          {% if perfil.especialidades %}
+          <div class="mb-3">
+            <span class="fw-bold">Especialidades:</span>
+            <span class="text-muted">{{ perfil.especialidades }}</span>
+          </div>
+          {% endif %}
+
+          <!-- BOTONES ALINEADOS -->
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'veterinario:perfil' %}" class="btn btn-primary">
+              Editar perfil
+            </a>
+            <a href="{% url 'veterinario:citas' %}" class="btn btn-outline-primary">
+              Ver mis citas
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <hr class="my-4">
+</div>
+{% endblock %}

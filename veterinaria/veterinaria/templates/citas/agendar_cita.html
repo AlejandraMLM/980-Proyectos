@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #1e3a5f, #2c5282);">
+          <div class="text-center">
+            <h4 class="mb-0">Agendar Cita</h4>
+            <small>Completa los datos para agendar tu cita</small>
+          </div>
+        </div>
+
+        <div class="card-body p-4">
+          {# --- Aviso de errores globales --- #}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+
+          {% if form.fields.mascota.queryset.count == 0 %}
+            <div class="alert alert-warning">
+              Aún no tienes mascotas registradas.
+              <a href="{% url 'mascotas:crear' %}">Registra una aquí</a> y luego vuelve para completar tu cita.
+            </div>
+          {% endif %}
+
+          <form method="post">
+            {% csrf_token %}
+
+            <!-- Mascota -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Mascota</label>
+              {{ form.mascota }}
+              {% if form.mascota.errors %}<div class="text-danger">{{ form.mascota.errors }}</div>{% endif %}
+              <div class="form-text">Selecciona la mascota para esta cita.</div>
+            </div>
+
+            <!-- Notas -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Notas Adicionales</label>
+              {{ form.notas }}
+              {% if form.notas.errors %}<div class="text-danger">{{ form.notas.errors }}</div>{% endif %}
+              <div class="form-text">Opcional: Describe cualquier información adicional sobre tu mascota o el servicio.</div>
+            </div>
+
+            <!-- Veterinario y fecha por servicio -->
+            <div class="mb-4">
+              <h6 class="fw-bold">Selecciona Veterinario y fecha por servicio</h6>
+              <div class="card border-0 bg-light">
+                <div class="card-body">
+                  {% for item in carrito_items %}
+                    {% with id_str=item.servicio.id|stringformat:"s" %}
+                      {% with fn_vet="vet_"|add:id_str fn_dt="dt_"|add:id_str %}
+                        <div class="mb-3">
+                          <label class="form-label">{{ item.servicio.nombre }} — Veterinario</label>
+                          {{ form|getitem:fn_vet }}
+                          {% with err=form.errors|getitem:fn_vet %}{% if err %}<div class="text-danger">{{ err }}</div>{% endif %}{% endwith %}
+                        </div>
+
+                        <div class="mb-4">
+                          <label class="form-label">Fecha y hora para {{ item.servicio.nombre }}</label>
+                          {{ form|getitem:fn_dt }}
+                          {% with err=form.errors|getitem:fn_dt %}{% if err %}<div class="text-danger">{{ err }}</div>{% endif %}{% endwith %}
+                          <div class="form-text">
+                            Se validará el horario de atención y que no se traslape con otras citas del veterinario.
+                          </div>
+                        </div>
+                      {% endwith %}
+                    {% endwith %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Datos de facturación -->
+            <div class="mb-4">
+              <h6 class="fw-bold">Datos de facturación</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nombre / Razón social</label>
+                  {{ form.factura_nombre }}
+                  {% if form.factura_nombre.errors %}<div class="text-danger">{{ form.factura_nombre.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">NIT</label>
+                  {{ form.factura_nit }}
+                  {% if form.factura_nit.errors %}<div class="text-danger">{{ form.factura_nit.errors }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Dirección</label>
+                  {{ form.factura_direccion }}
+                  {% if form.factura_direccion.errors %}<div class="text-danger">{{ form.factura_direccion.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Departamento</label>
+                  {{ form.factura_departamento }}
+                  {% if form.factura_departamento.errors %}<div class="text-danger">{{ form.factura_departamento.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Municipio</label>
+                  {{ form.factura_municipio }}
+                  {% if form.factura_municipio.errors %}<div class="text-danger">{{ form.factura_municipio.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Correo</label>
+                  {{ form.factura_email }}
+                  {% if form.factura_email.errors %}<div class="text-danger">{{ form.factura_email.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Teléfono</label>
+                  {{ form.factura_telefono }}
+                  {% if form.factura_telefono.errors %}<div class="text-danger">{{ form.factura_telefono.errors }}</div>{% endif %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Resumen de importes -->
+            {% if carrito_items %}
+              <div class="mb-4">
+                <h6 class="fw-bold">Servicios a Agendar:</h6>
+                <div class="card border-0 bg-light">
+                  <div class="card-body">
+                    {% for item in carrito_items %}
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>
+                          <strong>{{ item.servicio.nombre }}</strong><br>
+                          <small class="text-muted">{{ item.servicio.descripcion }}</small>
+                        </span>
+                        <span>Q{{ item.servicio.precio|floatformat:2 }}</span>
+                      </div>
+                    {% endfor %}
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                      <span><strong>Subtotal:</strong></span>
+                      <span><strong>Q{{ subtotal|floatformat:2 }}</strong></span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span>IVA (12%)</span>
+                      <span>Q{{ iva|floatformat:2 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1">
+                      <span><strong>Total:</strong></span>
+                      <span><strong>Q{{ total|floatformat:2 }}</strong></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="{% url 'citas:ver_carrito' %}" class="btn btn-secondary me-md-2">
+                <i class="fas fa-arrow-left me-2"></i>Volver al Carrito
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-calendar-check me-2"></i>Confirmar Citas
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

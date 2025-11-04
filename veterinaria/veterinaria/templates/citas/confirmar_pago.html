@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-header">
+    <h5 class="mb-0">Confirmar pago — Ref: {{ pago.referencia }}</h5>
+  </div>
+  <div class="card-body">
+    {% if pago.estado in 'aprobado,rechazado,vencido,cancelado' %}
+      <div class="alert alert-info">Estado actual: {{ pago.get_estado_display }}</div>
+      <a class="btn btn-secondary" href="{% url 'citas:pago_detalle' pago.id %}">Volver</a>
+    {% else %}
+      <form method="post" enctype="multipart/form-data" class="row g-3">
+        {% csrf_token %}
+        <div class="col-md-6">
+          <label class="form-label">Banco</label>
+          <input type="text" name="banco" class="form-control" required placeholder="Ej. Banco Industrial">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Número de boleta / referencia</label>
+          <input type="text" name="numero_boleta" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Fecha de pago</label>
+          <input type="date" name="fecha_pago" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Comprobante (PDF/JPG/PNG)</label>
+          <input type="file" name="comprobante" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Notas (opcional)</label>
+          <textarea name="notas" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="col-12 d-flex gap-2">
+          <button class="btn btn-success" type="submit">Enviar confirmación</button>
+          <a class="btn btn-secondary" href="{% url 'citas:pago_detalle' pago.id %}">Cancelar</a>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

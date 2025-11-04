@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="card shadow-sm border-0">
+      <div class="card-header text-white" style="background: linear-gradient(135deg, #1e3a5f, #2c5282);">
+        <h4 class="mb-0">{% if object %}Editar{% else %}Registrar{% endif %} Mascota</h4>
+        <small class="opacity-75">Completa los datos de tu mascota</small>
+      </div>
+
+      <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          {# ====== ERRORES GLOBALES / DE CAMPOS ====== #}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+          {% if form.errors %}
+            <div class="alert alert-danger">
+              <ul class="mb-0">
+                {% for field_name, errors in form.errors.items %}
+                  <li>
+                    <strong>{{ field_name|capfirst }}:</strong> {{ errors|join:", " }}
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+
+          {# ===== ERRORES DEL FORMSET: INMUNIZACIONES ===== #}
+          {% if inmunizaciones.non_form_errors %}
+            <div class="alert alert-danger">
+              {{ inmunizaciones.non_form_errors }}
+            </div>
+          {% endif %}
+          {% for f in inmunizaciones.forms %}
+            {% if f.errors %}
+              <div class="alert alert-danger">
+                <strong>Inmunización — fila {{ forloop.counter }}:</strong>
+                {{ f.errors.as_ul }}
+              </div>
+            {% endif %}
+          {% endfor %}
+
+          {# ===== ERRORES DEL FORMSET: HISTORIAL ===== #}
+          {% if historial.non_form_errors %}
+            <div class="alert alert-danger">
+              {{ historial.non_form_errors }}
+            </div>
+          {% endif %}
+          {% for h in historial.forms %}
+            {% if h.errors %}
+              <div class="alert alert-danger">
+                <strong>Historial — fila {{ forloop.counter }}:</strong>
+                {{ h.errors.as_ul }}
+              </div>
+            {% endif %}
+          {% endfor %}
+
+          {# ===== Propietario ===== #}
+          <h6 class="text-uppercase text-muted mb-2">Propietario</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Nombre</label>
+              {{ form.propietario_nombre }}
+          
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Apellido</label>
+              {{ form.propietario_apellido }}
+              
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Correo</label>
+              {{ form.propietario_email }}
+              
+            </div>
+            
+          </div>
+
+
+          <hr class="my-4">
+
+          {# ===== Datos de la mascota ===== #}
+          <h6 class="text-uppercase text-muted mb-2">Datos de la mascota</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Nombre de la mascota</label>
+              {{ form.nombre }}
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Especie</label>
+              {{ form.especie }}
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Sexo</label>
+              {{ form.sexo }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Raza</label>
+              {{ form.raza }}
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Nacimiento</label>
+              {{ form.fecha_nacimiento }}
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Peso (kg)</label>
+              {{ form.peso_kg }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Color</label>
+              {{ form.color }}
+            </div>
+            <div class="col-md-6 d-flex align-items-center" style="gap:.5rem;">
+              {{ form.esterilizado }} <label class="form-check-label">Esterilizado</label>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Foto</label>
+              {{ form.foto }}
+              {% if form.foto.errors %}
+                <div class="text-danger small mt-1">{{ form.foto.errors }}</div>
+              {% endif %}
+              <div class="form-text">Formatos aceptados: JPG/PNG. Tamaño recomendado &lt; 5 MB.</div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          {# ===== Salud ===== #}
+          <h6 class="text-uppercase text-muted mb-2">Salud</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-12">
+              <label class="form-label">Alergias</label>
+              {{ form.alergias }}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Condiciones actuales</label>
+              {{ form.condiciones_actuales }}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Veterinario</label>
+              {{ form.veterinario }}
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          {# ===== Dirección ===== #}
+          <h6 class="text-uppercase text-muted mb-2">Dirección</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label">Departamento</label>
+              {{ form.departamento }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Municipio</label>
+              {{ form.municipio }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Zona</label>
+              {{ form.zona }}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Dirección completa</label>
+              {{ form.direccion_completa }}
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          {# ===== Contacto para la mascota ===== #}
+          <h6 class="text-uppercase text-muted mb-2">Contacto para la mascota</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <label class="form-label">Código de área</label>
+              {{ form.codigo_area }}
+              
+            </div>
+            <div class="col-md-9">
+              <label class="form-label">Teléfono de contacto</label>
+              {{ form.telefono }}
+              
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          {# ====== Historial de inmunización (fijo 1–15 años) ====== #}
+          <h6 class="text-uppercase text-muted mb-2">Historial de inmunización</h6>
+          {{ inmunizaciones.management_form }}
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th style="min-width:90px">Edad</th>
+                  <th>Rabia</th>
+                  <th>DHPP</th>
+                  <th>Lyme</th>
+                  <th>Bordetella</th>
+                  <th>Lepto</th>
+                  <th>Influenza</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for f in inmunizaciones.forms %}
+                  <tr>
+                    <td>
+                      <strong>{{ forloop.counter }} año{% if forloop.counter > 1 %}s{% endif %}</strong>
+                      {% for hidden in f.hidden_fields %}
+                        {{ hidden }}
+                      {% endfor %}
+                      {{ f.edad_anios }}
+                    </td>
+                    <td class="text-center">{{ f.rabia }}</td>
+                    <td class="text-center">{{ f.dhpp }}</td>
+                    <td class="text-center">{{ f.lyme }}</td>
+                    <td class="text-center">{{ f.bordetella }}</td>
+                    <td class="text-center">{{ f.lepto }}</td>
+                    <td class="text-center">{{ f.influenza }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <hr class="my-4">
+
+          {# ====== Historial veterinario (agregar / quitar) ====== #}
+          <h6 class="text-uppercase text-muted mb-2">Historial veterinario</h6>
+          {{ historial.management_form }}
+
+          {# Plantilla del empty_form (con prefix 'historial') #}
+          <script type="text/template" id="historial-empty-row">
+            <tr class="hist-row">
+              <td>{{ historial.empty_form.fecha }}</td>
+              <td>{{ historial.empty_form.descripcion }}</td>
+              <td>{{ historial.empty_form.veterinario }}</td>
+              <td>{{ historial.empty_form.diagnostico }}</td>
+              <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeHistRow(this)">Quitar</button></td>
+            </tr>
+          </script>
+
+          <div id="historial-rows" class="table-responsive">
+            <table class="table table-bordered align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th style="min-width:130px">Fecha</th>
+                  <th>Descripción</th>
+                  <th>Veterinario</th>
+                  <th>Diagnóstico</th>
+                  <th style="width:60px">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for h in historial.forms %}
+                  <tr class="hist-row">
+                    <td>{{ h.fecha }}</td>
+                    <td>{{ h.descripcion }}</td>
+                    <td>{{ h.veterinario }}</td>
+                    <td>{{ h.diagnostico }}</td>
+                    <td>
+                      {% if h.instance.pk %}
+                        <label class="form-check-label small">
+                          {{ h.DELETE }} Eliminar
+                        </label>
+                      {% else %}
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeHistRow(this)">Quitar</button>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mb-4">
+            <button type="button" class="btn btn-sm btn-outline-primary" id="addHistRow">
+              + Agregar fila
+            </button>
+          </div>
+
+          <div class="d-flex gap-2 justify-content-end">
+            <a class="btn btn-secondary" href="{% url 'mascotas:listar' %}">Cancelar</a>
+            <button class="btn text-white fw-bold" style="background: linear-gradient(135deg, #2c5282, #1e3a5f);" type="submit">
+              Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // === Dinámica del formset 'historial' (prefix fijo 'historial') ===
+  (function(){
+    const tbody = document.querySelector('#historial-rows tbody');
+    const addBtn = document.getElementById('addHistRow');
+    const totalInput = document.querySelector('input[name="historial-TOTAL_FORMS"]');
+    const tmpl = document.getElementById('historial-empty-row').innerHTML.trim();
+
+    function addRow(){
+      const idx = parseInt(totalInput.value, 10);
+      const html = tmpl.replaceAll('__prefix__', String(idx));
+      tbody.insertAdjacentHTML('beforeend', html);
+      totalInput.value = idx + 1;
+    }
+
+    addBtn?.addEventListener('click', addRow);
+  })();
+
+  function removeHistRow(btn){
+    const tr = btn.closest('tr');
+    const del = tr.querySelector('input[type="checkbox"][name$="-DELETE"]');
+    const totalInput = document.querySelector('input[name="historial-TOTAL_FORMS"]');
+    if (del){
+      del.checked = true;
+      tr.style.display = 'none';
+    } else {
+      tr.remove();
+      totalInput.value = Math.max(0, parseInt(totalInput.value, 10) - 1);
+    }
+  }
+</script>
+{% endblock %}

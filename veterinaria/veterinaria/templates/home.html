@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+{# HERO #}
+<div class="row mb-4 hero-row">
+  <div class="col-12 text-center">
+    <h1 class="display-4">Bienvenido a MyVetPet</h1>
+    <p class="lead">Cuidado veterinario profesional para tus mejores amigos</p>
+  </div>
+</div>
+
+{# Si es veterinario, mostrarmos acceso al panel, no el catálogo #}
+{% if user.is_authenticated and user.tipo_usuario == 'veterinario' %}
+
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-info d-flex align-items-center justify-content-between">
+        <div>
+          <strong>Modo personal veterinario:</strong> Accede a tu panel para gestionar tu perfil, disponibilidad y citas asignadas.
+        </div>
+        <a href="{% url 'veterinario:panel' %}" class="btn btn-primary">
+          Ir a mi panel
+        </a>
+      </div>
+    </div>
+  </div>
+
+{% else %}
+
+  <div class="row">
+    <div class="col-12">
+      <h2 id="services-title" class="mb-4 text-dark">Nuestros Servicios Veterinarios</h2>
+    </div>
+  </div>
+
+  <div class="row">
+    {% for servicio in servicios %}
+    <div class="col-12 col-sm-6 col-md-6 col-lg-3 mb-4">
+      <div class="card servicio-card h-100">
+
+        {# ====== Imagen del servicio con fallback embebido (opción 2) ====== #}
+        {% if servicio.imagen %}
+          <img class="card-img-top"
+               src="{{ servicio.imagen.url }}"
+               alt="{{ servicio.nombre }}"
+               onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,\
+               <svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;450&quot;>\
+                 <rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;%23e9ecef&quot;/>\
+                 <text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot;\
+                   font-family=&quot;Arial, Helvetica, sans-serif&quot; font-size=&quot;24&quot; fill=&quot;%23777&quot;>\
+                   Imagen no disponible\
+                 </text>\
+               </svg>';">
+        {% else %}
+          <img class="card-img-top"
+               src="{% static 'assets/servicios/default.jpg' %}"
+               alt="{{ servicio.nombre }}"
+               onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,\
+               <svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;450&quot;>\
+                 <rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;%23e9ecef&quot;/>\
+                 <text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot;\
+                   font-family=&quot;Arial, Helvetica, sans-serif&quot; font-size=&quot;24&quot; fill=&quot;%23777&quot;>\
+                   Imagen no disponible\
+                 </text>\
+               </svg>';">
+        {% endif %}
+        {# ====== FIN imagen con fallback ====== #}
+
+        <div class="card-body">
+          <h5 class="card-title text-dark">{{ servicio.nombre }}</h5>
+          <p class="card-text text-muted">{{ servicio.descripcion }}</p>
+          <p class="card-text">
+            <strong class="text-dark">Precio: Q{{ servicio.precio }}</strong><br>
+            <small class="text-muted">Duración: {{ servicio.duracion }} min</small>
+          </p>
+        </div>
+
+        <div class="card-footer bg-white">
+          {% if servicio.disponible %}
+            {% if user.is_authenticated %}
+              <div style="display:flex; justify-content:center; width:100%; margin-top:10px;">
+                <a href="{% url 'citas:agregar_al_carrito' servicio.id %}"
+                   class="btn btn-medical btn-sm" style="display:inline-block; text-decoration:none;">
+                  Agendar Cita
+                </a>
+              </div>
+            {% else %}
+              <div style="display:flex; justify-content:center; width:100%; margin-top:10px;">
+                <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm" style="display:inline-block; text-decoration:none;">
+                  Iniciar sesión para agendar
+                </a>
+              </div>
+            {% endif %}
+          {% else %}
+            <div style="display:flex; justify-content:center; width:100%; margin-top:4px;">
+              <span class="badge bg-secondary">No disponible</span>
+            </div>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info">Próximamente tendremos servicios disponibles.</div>
+    </div>
+    {% endfor %}
+  </div>
+
+    {# ======== EQUIPO VETERINARIO (sólo disponibles) ======== #}
+  <div class="row mt-5">
+    <div class="col-12">
+      <h2 class="mb-4 text-dark">Nuestro Equipo Veterinario</h2>
+    </div>
+  </div>
+
+  <div class="row">
+    {% for perfil in veterinarios %}
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+        <div class="card h-100">
+
+          {# Foto: intenta perfil.foto; si no, intenta perfil.usuario.foto; si falla, placeholder #}
+          {% if perfil.foto %}
+            <img src="{{ perfil.foto.url }}" class="card-img-top"
+                alt="Foto de {{ perfil.usuario.get_full_name|default:perfil.usuario.username }}"
+                onerror="this.style.display='none'">
+          {% elif perfil.usuario and perfil.usuario.foto %}
+            <img src="{{ perfil.usuario.foto.url }}" class="card-img-top"
+                alt="Foto de {{ perfil.usuario.get_full_name|default:perfil.usuario.username }}"
+                onerror="this.style.display='none'">
+          {% else %}
+            <img src="{% static 'img/vet-placeholder.jpg' %}" class="card-img-top"
+                alt="Veterinario" onerror="this.style.display='none'">
+          {% endif %}
+
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title mb-1">
+              {% if perfil.usuario %}
+                {{ perfil.usuario.get_full_name|default:perfil.usuario.username }}
+              {% else %}
+                {{ perfil.get_full_name|default:perfil.username }}
+              {% endif %}
+            </h5>
+
+            {# Colegiado si existe #}
+            {% if perfil.colegiado %}
+              <div class="text-muted small mb-2">Colegiado: {{ perfil.colegiado }}</div>
+            {% endif %}
+
+            {# Especialidades si existen #}
+            {% if perfil.especialidades %}
+              <div class="mb-2">
+                <span class="badge bg-info text-dark">Especialidades</span>
+                <div class="small text-muted mt-1">{{ perfil.especialidades }}</div>
+              </div>
+            {% endif %}
+
+            {# Bio si existe #}
+            {% if perfil.bio %}
+              <p class="card-text text-muted mb-3" style="min-height:48px;">
+                {{ perfil.bio|truncatewords:24 }}
+              </p>
+            {% endif %}
+
+            {# Hasta 3 servicios si es que el perfil tiene M2M 'servicios' #}
+            {% if perfil.servicios.all %}
+              <div class="mt-auto">
+                <div class="small text-muted mb-1">Atiende:</div>
+                <div class="d-flex flex-wrap gap-1">
+                  {% for s in perfil.servicios.all|slice:":3" %}
+                    <span class="badge bg-light text-dark border">{{ s.nombre }}</span>
+                  {% endfor %}
+                  {% if perfil.servicios.count > 3 %}
+                    <span class="badge bg-secondary">+{{ perfil.servicios.count|add:'-3' }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="card-footer bg-white">
+            <span class="badge bg-success">Disponible</span>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="alert alert-secondary mb-0">
+          Por ahora no hay veterinarios disponibles para mostrar.
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+
+
+  <!-- Sección de información adicional -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="card border-0" style="background-color: #f8f9fa;">
+        <div class="card-body text-center">
+          <h5 class="card-title">Servicio Veterinario de Calidad</h5>
+          <p class="card-text">
+            En MyVetPet nos dedicamos a proporcionar la mejor atención médica para tus mascotas.
+            Contamos con equipo moderno y personal calificado.
+          </p>
+          <div class="row mt-3">
+            <div class="col-md-4">
+              <span class="fw-bold">Ubicación:</span><br>
+              Guatemala City
+            </div>
+            <div class="col-md-4">
+              <span class="fw-bold">Teléfono:</span><br>
+              +502 1234-5678
+            </div>
+            <div class="col-md-4">
+              <span class="fw-bold">Horario:</span><br>
+              Lun-Vie: 8:00-19:00 <br>
+              Sab-Dom: 9:00-15:00
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endif %}
+
+{% endblock %}

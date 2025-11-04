@@ -1,0 +1,172 @@
+{% extends 'administrador/base.html' %}
+
+{# Desactiva el breadcrumb SOLO en el panel #}
+{% block breadcrumb %}{% endblock %}
+
+{% block content %}
+
+<style>
+  /* Sidebar: textos bajo el logo en blanco (por si la vista se usa sin el base actualizado) */
+  .sidebar .admin-logo h5,
+  .sidebar .admin-logo small{
+    color:#fff !important;
+    opacity:1 !important;
+  }
+
+  /* Header: subtítulo blanco, ocultar tuerca y “Administrador” (defensivo por si el base no lo quitó) */
+  .main-header .subtitle,
+  .main-header small,
+  .main-header .text-muted{
+    color:#fff !important;
+    opacity:0.95 !important;
+  }
+  .main-header .fa-gear,
+  .main-header .fa-cog,
+  .main-header .fa-cogs{ display:none !important; }
+  .main-header .badge{ display:none !important; }
+
+  /* Ocultar breadcrumb de esta vista */
+  .breadcrumb{ display:none !important; }
+
+  /* Métricas: mismo azul para todas */
+  .border-left-primary,
+  .border-left-success,
+  .border-left-info,
+  .border-left-warning{
+    border-left:4px solid #1a49ad !important;
+  }
+  .text-primary,
+  .text-success,
+  .text-info,
+  .text-warning{
+    color:#1a49ad !important;
+  }
+  .text-gray-300{ color:#c7d3df!important; }
+  .text-gray-800{ color:#1d2b3a!important; }
+
+  /* Botones Acciones Rápidas: todos azules */
+  .acciones-rapidas .btn{
+    background: linear-gradient(135deg, #14527f, #1b6fa4) !important;
+    color:#fff !important;
+    border:1px solid rgba(14,46,91,.15) !important;
+  }
+
+  .card { border-radius: 10px; transition: transform 0.2s; }
+  .card:hover { transform: translateY(-5px); }
+</style>
+
+<!-- Estadísticas -->
+<div class="row mt-4">
+  <!-- Servicios Activos -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-primary shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+              Servicios Activos
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_servicios }}</div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-concierge-bell fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Citas Totales -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-primary shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+              Citas Totales
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_citas }}</div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Usuarios Registrados -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-primary shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+              Usuarios Registrados
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_usuarios }}</div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-users fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Citas Pendientes -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-primary shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+              Citas Pendientes
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ citas_pendientes }}</div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-clock fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Acciones Rápidas -->
+<div class="row mt-4 acciones-rapidas">
+  <div class="col-12">
+    <div class="card shadow">
+      <div class="card-header bg-white">
+        <h5 class="card-title mb-0">Acciones Rápidas</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <a href="{% url 'administrador:gestion_servicios' %}" class="btn btn-block w-100">
+              <i class="fas fa-plus me-2"></i>Agregar Servicio
+            </a>
+          </div>
+          <div class="col-md-3 mb-3">
+            <a href="{% url 'admin:index' %}" class="btn btn-block w-100" target="_blank">
+              <i class="fas fa-gears me-2"></i>Admin Avanzado
+            </a>
+          </div>
+          <div class="col-md-3 mb-3">
+            <a href="{% url 'administrador:reportes' %}" class="btn btn-block w-100">
+              <i class="fas fa-file-pdf me-2"></i>Reportes
+            </a>
+          </div>
+          <div class="col-md-3 mb-3">
+            <a href="#" class="btn btn-block w-100">
+              <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

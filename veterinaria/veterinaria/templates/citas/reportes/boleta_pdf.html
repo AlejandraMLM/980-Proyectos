@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Boleta de Pago</title>
+<style>
+  /* Estilos compatibles con xhtml2pdf */
+  @page { size: A4; margin: 16mm; }
+
+  body { font-family: DejaVu Sans, Arial, Helvetica, sans-serif; color: #222; font-size: 11.5px; }
+  h1, h2, h3 { margin: 0 0 8px 0; }
+  h1 { font-size: 18px; }
+  h2 { font-size: 15px; }
+  .muted { color: #666; font-size: 10.5px; }
+  .mb4 { margin-bottom: 4px; }
+  .mb8 { margin-bottom: 8px; }
+  .mb12 { margin-bottom: 12px; }
+  .mb16 { margin-bottom: 16px; }
+  .box { border: 1px solid #bfc7d1; padding: 8px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #bfc7d1; padding: 6px 7px; vertical-align: top; }
+  thead th { background: #eef2f7; }
+  .right { text-align: right; }
+  .center { text-align: center; }
+
+  .badge { display: inline-block; padding: 2px 6px; border: 1px solid #bfc7d1; border-radius: 3px; font-size: 10px; }
+</style>
+</head>
+<body>
+
+  <h1>Boleta de Pago</h1>
+  <div class="muted mb12">Generado: {{ generado_en|date:"Y-m-d H:i" }}</div>
+
+  <div class="box mb12">
+    <table>
+      <tr>
+        <td>
+          <b>Referencia:</b> {{ pago.referencia }}<br/>
+          <b>Estado:</b> {{ pago.get_estado_display }}<br/>
+          <b>Método:</b> {{ pago.get_metodo_display|default:pago.metodo }}<br/>
+        </td>
+        <td>
+          <b>Cliente:</b> {{ usuario.get_full_name|default:usuario.username }}<br/>
+          <b>Correo:</b> {{ usuario.email|default:"—" }}<br/>
+          <b>Vence:</b> {{ pago.fecha_limite|date:"Y-m-d H:i" }}<br/>
+        </td>
+        <td class="right">
+          <b>Monto total:</b> Q{{ pago.monto_total }}<br/>
+          <b>Moneda:</b> GTQ<br/>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <h2 class="mb8">Detalle de Citas</h2>
+  <table class="mb12">
+    <thead>
+      <tr>
+        <th style="width: 18%;">Fecha</th>
+        <th style="width: 26%;">Servicio</th>
+        <th style="width: 20%;">Mascota</th>
+        <th style="width: 18%;">Veterinario</th>
+        <th style="width: 18%;" class="right">Importe</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in citas %}
+      <tr>
+        <td>{{ c.fecha|date:"Y-m-d H:i" }}</td>
+        <td>{{ c.servicio.nombre }}</td>
+        <td>{{ c.mascota.nombre|default:"—" }}</td>
+        <td>
+          {% if c.veterinario %}
+            {{ c.veterinario.get_full_name|default:c.veterinario.username }}
+          {% else %} — {% endif %}
+        </td>
+        <td class="right">Q{{ c.servicio.precio }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="center">No hay citas vinculadas a esta boleta.</td></tr>
+      {% endfor %}
+      <tr>
+        <td colspan="4" class="right"><b>Total a pagar</b></td>
+        <td class="right"><b>Q{{ pago.monto_total }}</b></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="mb8">Instrucciones de Pago</h2>
+  <div class="box mb12">
+    <p class="mb8">
+      Realiza un <b>depósito o transferencia</b> a cualquiera de las siguientes cuentas:
+    </p>
+    <table class="mb8">
+      <tr>
+        <th style="width: 28%;">Banco</th>
+        <th style="width: 44%;">Cuenta</th>
+        <th style="width: 28%;">Titular</th>
+      </tr>
+      <tr>
+        <td>Banco Industrial</td>
+        <td>Cuenta Monetaria 000-123456-7</td>
+        <td>MyVetPet S.A.</td>
+      </tr>
+      <tr>
+        <td>Banrural</td>
+        <td>Cuenta Ahorro 45-6789-01</td>
+        <td>MyVetPet S.A.</td>
+      </tr>
+    </table>
+
+    <p class="mb4">
+      <b>Referencia obligatoria:</b> escribe <b>{{ pago.referencia }}</b> en el concepto del depósito/transferencia.
+    </p>
+    <p class="mb4">
+      <b>Fecha límite:</b> {{ pago.fecha_limite|date:"Y-m-d H:i" }}. Después de esa fecha la boleta vence automáticamente.
+    </p>
+    <p class="mb4">
+      Luego, sube tu comprobante en <b>Mis Citas &gt; Acciones.</b>
+    </p>
+  </div>
+
+  <div class="muted">
+    * Este documento no es factura. Sirve para efectuar el pago en bancos o banca en línea.
+  </div>
+
+</body>
+</html>

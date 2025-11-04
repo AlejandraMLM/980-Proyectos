@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="max-width: 1000px;">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="mb-0">Agregar historial — Cita #{{ cita.id }}</h3>
+    <div class="d-flex gap-2">
+      <a href="{% url 'veterinario:citas' %}" class="btn btn-outline-secondary">Volver a mis citas</a>
+      <a href="{% url 'mascotas:historial' cita.mascota.pk %}" class="btn btn-secondary">Ver historial</a>
+    </div>
+  </div>
+
+  {# Ficha breve de la mascota (solo lectura) #}
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          {% if cita.mascota.foto %}
+            <img src="{{ cita.mascota.foto.url }}" class="img-fluid rounded" alt="{{ cita.mascota.nombre }}">
+          {% endif %}
+        </div>
+        <div class="col-md-9">
+          <h5 class="mb-1">{{ cita.mascota.nombre }} — {{ cita.mascota.get_especie_display }}{% if cita.mascota.raza %} · {{ cita.mascota.raza }}{% endif %}</h5>
+          <p class="mb-1">
+            {% if cita.mascota.sexo %}<b>Sexo:</b> {{ cita.mascota.get_sexo_display }} · {% endif %}
+            {% if cita.mascota.peso_kg %}<b>Peso:</b> {{ cita.mascota.peso_kg }} kg · {% endif %}
+          </p>
+          {% if cita.mascota.alergias %}<p class="mb-1"><b>Alergias:</b> {{ cita.mascota.alergias }}</p>{% endif %}
+          {% if cita.mascota.condiciones_actuales %}<p class="mb-0"><b>Condiciones actuales:</b> {{ cita.mascota.condiciones_actuales }}</p>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="card shadow-sm">
+    <div class="card-header bg-light"><strong>Registrar atención</strong></div>
+    <div class="card-body">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">Motivo / Resumen</label>
+          <input type="text" name="motivo" class="form-control" placeholder="Motivo de consulta, breve resumen">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Diagnóstico</label>
+          <input type="text" name="diagnostico" class="form-control" placeholder="Diagnóstico clínico">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Tratamiento / Exámenes</label>
+          <textarea name="tratamiento" class="form-control" rows="2" placeholder="Procedimientos, indicaciones, estudios..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Medicamentos</label>
+          <textarea name="medicamentos" class="form-control" rows="2" placeholder="Nombre, dosis, frecuencia..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Adjunto</label>
+          <input type="file" name="adjunto" class="form-control">
+          <div class="form-text">JPG/PNG/PDF &lt; 5MB.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+      <a href="{% url 'veterinario:citas' %}" class="btn btn-secondary">Cancelar</a>
+      <button class="btn btn-primary">Guardar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="reportes-wrap">
+  <div class="reportes-header d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="h3 mb-1">Mis Citas</h1>
+      <p class="muted mb-0">Filtra, descarga PDF y gestiona tu pago.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary btn-sm"
+         href="{% url 'citas:pdf_mis' %}?fecha_desde={{ filtros.fecha_desde }}&fecha_hasta={{ filtros.fecha_hasta }}&estado={{ filtros.estado }}&servicio_id={{ filtros.servicio_id }}">
+        <i class="fa-regular fa-file-pdf me-1"></i> Descargar PDF
+      </a>
+    </div>
+  </div>
+
+  <form class="filtros mb-3" method="get" action="">
+    <div class="row g-2 align-items-end">
+      <div class="col-sm-6 col-md-3">
+        <label class="form-label">Desde</label>
+        <input type="date" class="form-control form-control-sm" name="fecha_desde" value="{{ filtros.fecha_desde }}">
+      </div>
+      <div class="col-sm-6 col-md-3">
+        <label class="form-label">Hasta</label>
+        <input type="date" class="form-control form-control-sm" name="fecha_hasta" value="{{ filtros.fecha_hasta }}">
+      </div>
+      <div class="col-sm-6 col-md-3">
+        <label class="form-label">Estado</label>
+        <select class="form-select form-select-sm" name="estado">
+          <option value="">Todos</option>
+          {% for key,val in estados_choices.items %}
+          <option value="{{ key }}" {% if filtros.estado == key %}selected{% endif %}>{{ val }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-sm-6 col-md-3">
+        <label class="form-label">Servicio</label>
+        <select class="form-select form-select-sm" name="servicio_id">
+          <option value="">Todos</option>
+          {% for s in servicios %}
+          <option value="{{ s.id }}" {% if filtros.servicio_id|default:'' == s.id|stringformat:'s' %}selected{% endif %}>{{ s.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-12 mt-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-sm">Aplicar</button>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'citas:mis_citas' %}">Limpiar</a>
+      </div>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Fecha inicio</th>
+          <th>Fecha fin</th>
+          <th>Servicio</th>
+          <th>Mascota</th>
+          <th>Estado</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in citas %}
+        <tr>
+          <td>#{{ c.id }}</td>
+          <td>{{ c.fecha|date:"Y-m-d H:i" }}</td>
+          <td>{{ c.fecha_fin|date:"Y-m-d H:i" }}</td>
+          <td>{{ c.servicio.nombre }}</td>
+          <td>{{ c.mascota.nombre|default:"—" }}</td>
+          <td>
+            <span class="badge
+              {% if c.estado == 'pendiente' %} bg-warning text-dark
+              {% elif c.estado == 'confirmada' %} bg-info text-dark
+              {% elif c.estado == 'completada' %} bg-success
+              {% elif c.estado == 'cancelada' %} bg-danger
+              {% else %} bg-secondary
+              {% endif %}">
+              {{ c.get_estado_display }}
+            </span>
+          </td>
+          <td class="text-center">
+            {% if c.pago_id %}
+              <div class="d-inline-flex flex-wrap gap-2">
+                <a href="{% url 'citas:pago_confirmar' c.pago_id %}"
+                   class="btn btn-sm btn-outline-primary"
+                   title="Confirmar pago / subir voucher">
+                  <i class="fa-solid fa-money-check-pen me-1"></i> Confirmar pago
+                </a>
+                <a href="{% url 'citas:pdf_boleta' c.pago_id %}"
+                   class="btn btn-sm btn-outline-secondary"
+                   title="Descargar boleta en PDF" target="_blank" rel="noopener">
+                  <i class="fa-regular fa-file-pdf me-1"></i> Boleta PDF
+                </a>
+              </div>
+              {% if c.pago %}
+                <div class="small text-muted mt-1">
+                  Ref: {{ c.pago.referencia }} · Vence: {{ c.pago.fecha_limite|date:"Y-m-d H:i" }} · Estado pago: {{ c.pago.get_estado_display }}
+                </div>
+              {% endif %}
+            {% else %}
+              <span class="text-muted small">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center text-muted">No hay citas.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

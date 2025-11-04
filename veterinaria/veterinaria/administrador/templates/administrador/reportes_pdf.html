@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Reporte de Citas</title>
+<style>
+  /* Más ancho útil: modo horizontal */
+  @page { size: A4 landscape; margin: 15mm; }
+
+  body { font-family: DejaVu Sans, Arial, Helvetica, sans-serif; font-size: 11.5px; color: #222; }
+  h1 { font-size: 19px; margin: 0 0 8px 0; }
+  .muted { color: #666; font-size: 10.5px; }
+  .mb12 { margin-bottom: 12px; }
+
+  /* Tabla robusta para xhtml2pdf */
+  table { width: 100%; border-collapse: collapse; /* table-layout puede no tener efecto, pero ayuda */ table-layout: fixed; }
+  th, td { border: 1px solid #bfc7d1; padding: 7px 8px; vertical-align: top; line-height: 1.35; }
+  thead th { background: #eef2f7; }
+
+  /* Anchos pensados para evitar solapes (suman 100%) */
+  th.col-id,          td.col-id          { width: 6%;  }
+  th.col-inicio,      td.col-inicio      { width: 16%; }
+  th.col-fin,         td.col-fin         { width: 16%; }
+  th.col-usuario,     td.col-usuario     { width: 22%; }
+  th.col-servicio,    td.col-servicio    { width: 18%; }
+  th.col-mascota,     td.col-mascota     { width: 10%; }
+  th.col-estado,      td.col-estado      { width: 12%; }
+
+  /* Bloquear email debajo del nombre para que no “salte” */
+  .email { display: block; margin-top: 2px; }
+
+  /* Evitar desbordes molestos; soporte parcial pero no rompe */
+  .wrap { word-wrap: break-word; overflow-wrap: break-word; }
+
+  .center { text-align: center; }
+</style>
+</head>
+<body>
+  <h1>Reporte de Citas</h1>
+  <div class="muted mb12">Generado: {{ generado_en|date:"Y-m-d H:i" }}</div>
+
+  <div class="mb12 muted">
+    <span><b>Desde:</b> {{ filtros.fecha_desde|default:"—" }}</span> ·
+    <span><b>Hasta:</b> {{ filtros.fecha_hasta|default:"—" }}</span> ·
+    <span><b>Estado:</b> {{ filtro_estado_label }}</span> ·
+    <span><b>Servicio:</b>
+      {% if filtros.servicio_id %}
+        {% for s in servicios %}{% if s.id|stringformat:'s' == filtros.servicio_id %}{{ s.nombre }}{% endif %}{% endfor %}
+      {% else %}Todos{% endif %}
+    </span> ·
+    <span><b>Usuario:</b> {{ filtros.usuario|default:"" }}</span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="col-id">ID</th>
+        <th class="col-inicio">Fecha inicio</th>
+        <th class="col-fin">Fecha fin</th>
+        <th class="col-usuario">Usuario</th>
+        <th class="col-servicio">Servicio</th>
+        <th class="col-mascota">Mascota</th>
+        <th class="col-estado">Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in citas %}
+      <tr>
+        <td class="col-id center">#{{ c.id }}</td>
+        <td class="col-inicio">{{ c.fecha|date:"Y-m-d H:i" }}</td>
+        <td class="col-fin">{{ c.fecha_fin|date:"Y-m-d H:i" }}</td>
+        <td class="col-usuario wrap">
+          {{ c.usuario.get_full_name|default:c.usuario.username }}
+          {% if c.usuario.email %}<span class="email muted">{{ c.usuario.email }}</span>{% endif %}
+        </td>
+        <td class="col-servicio wrap">{{ c.servicio.nombre }}</td>
+        <td class="col-mascota">{{ c.mascota.nombre|default:"—" }}</td>
+        <td class="col-estado">{{ c.get_estado_display }}</td>
+      </tr>
+      {% empty %}
+      <tr><td class="center" colspan="7">No hay datos.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

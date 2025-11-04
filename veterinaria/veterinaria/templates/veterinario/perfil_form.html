@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Estilos puntuales para este formulario -->
+<style>
+  /* Contenedor centrado y ancho similar a Registrar Mascota */
+  .vet-profile-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  /* Hacer que inputs/selects/textarea ocupen el ancho completo sin usar filtros */
+  .vet-profile-form input[type="text"],
+  .vet-profile-form input[type="email"],
+  .vet-profile-form input[type="file"],
+  .vet-profile-form textarea,
+  .vet-profile-form select {
+    width: 100%;
+  }
+  /* Altura cómoda para textarea */
+  .vet-profile-form textarea {
+    min-height: 160px;
+  }
+</style>
+
+<div class="vet-profile-wrap">
+  <div class="card shadow border-0">
+    <!-- Header estilo hero -->
+    <div class="card-header text-white" style="background: linear-gradient(135deg, #1e3a5f, #2c5282);">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <h4 class="mb-0">Mi Perfil de Veterinario</h4>
+          <small>Completa/actualiza tu información profesional</small>
+        </div>
+        <div class="ms-3">
+          {% if object.foto %}
+            <img src="{{ object.foto.url }}" alt="Foto de perfil"
+                 class="rounded-circle border border-2 border-white"
+                 style="width:60px;height:60px;object-fit:cover;">
+          {% else %}
+            <img src="{% static 'assets/veterinarios/default.jpg' %}" alt="Foto de perfil"
+                 class="rounded-circle border border-2 border-white"
+                 style="width:60px;height:60px;object-fit:cover;">
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-4 vet-profile-form">
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <!-- Colegiado -->
+        <div class="mb-3">
+          <label class="form-label fw-bold" for="{{ form.colegiado.id_for_label }}">Colegiado</label>
+          {{ form.colegiado }}
+          {% if form.colegiado.errors %}<div class="text-danger">{{ form.colegiado.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Especialidades -->
+        <div class="mb-3">
+          <label class="form-label fw-bold" for="{{ form.especialidades.id_for_label }}">Especialidades</label>
+          {{ form.especialidades }}
+          <div class="form-text">Ej.: Cirugía </div>
+          {% if form.especialidades.errors %}<div class="text-danger">{{ form.especialidades.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Bio -->
+        <div class="mb-3">
+          <label class="form-label fw-bold" for="{{ form.bio.id_for_label }}">Bio</label>
+          {{ form.bio }}
+          {% if form.bio.errors %}<div class="text-danger">{{ form.bio.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Foto (solo el widget nativo para evitar duplicados de “Actualmente/Foto actual”) -->
+        <div class="mb-3">
+          <label class="form-label fw-bold" for="{{ form.foto.id_for_label }}">Foto</label>
+          {{ form.foto }}
+          <div class="form-text">Formatos: JPG/PNG. Tamaño recomendado &lt; 5 MB.</div>
+          {% if form.foto.errors %}<div class="text-danger">{{ form.foto.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Disponible -->
+        <div class="form-check form-switch mb-3">
+          {{ form.disponible }}
+          <label class="form-check-label fw-bold" for="{{ form.disponible.id_for_label }}">Disponible</label>
+          {% if form.disponible.errors %}<div class="text-danger">{{ form.disponible.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Servicios (ManyToMany) -->
+        <div class="mb-4">
+          <label class="form-label fw-bold" for="{{ form.servicios.id_for_label }}">Servicios que atiendo</label>
+          {{ form.servicios }}
+          <div class="form-text">Mantén presionada la tecla Ctrl para seleccionar múltiples.</div>
+          {% if form.servicios.errors %}<div class="text-danger">{{ form.servicios.errors }}</div>{% endif %}
+        </div>
+
+        <!-- Botones alineados -->
+        <div class="d-flex justify-content-end gap-2">
+          <a href="{% url 'veterinario:panel' %}" class="btn btn-secondary">Volver</a>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

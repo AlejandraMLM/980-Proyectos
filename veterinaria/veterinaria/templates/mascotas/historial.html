@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="max-width: 1000px;">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">Historial clínico de {{ mascota.nombre }}</h2>
+    <div class="d-flex gap-2">
+      {# Volver: si es veterinario va a sus citas; si es cliente va a sus mascotas #}
+      {% if es_veterinario %}
+        <a href="{% url 'veterinario:citas' %}" class="btn btn-secondary">Volver</a>
+      {% else %}
+        <a href="{% url 'mascotas:listar' %}" class="btn btn-secondary">Volver</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+      <strong>Registros clínicos</strong>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Fecha</th>
+              <th>Descripción / Motivo / Tratamiento</th>
+              <th>Veterinario</th>
+              <th>Diagnóstico</th>
+              <th>Adjunto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in registros %}
+              <tr>
+                <td>{{ r.fecha|date:"d/m/Y" }}</td>
+                <td style="white-space: pre-line">{{ r.descripcion|default:"—" }}</td>
+                <td>{{ r.veterinario|default:"—" }}</td>
+                <td>{{ r.diagnostico|default:"—" }}</td>
+                <td>
+                  {% if r.foto %}
+                    <a href="{{ r.foto.url }}" class="btn btn-sm btn-outline-primary" target="_blank">Ver</a>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="text-center p-4 text-muted">Aún no hay registros.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% if notas %}
+  <div class="card shadow-sm">
+    <div class="card-header bg-light">
+      <strong>Notas de citas</strong>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Fecha</th>
+              <th>Veterinario</th>
+              <th>Motivo</th>
+              <th>Diagnóstico</th>
+              <th>Tratamiento</th>
+              <th>Medicamentos</th>
+              <th>Adjunto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for n in notas %}
+              <tr>
+                <td>{{ n.fecha|date:"d/m/Y H:i" }}</td>
+                <td>{{ n.veterinario.get_full_name|default:n.veterinario.username }}</td>
+                <td>{{ n.motivo|default:"—" }}</td>
+                <td>{{ n.diagnostico|default:"—" }}</td>
+                <td>{{ n.tratamiento|default:"—" }}</td>
+                <td>{{ n.medicamentos|default:"—" }}</td>
+                <td>
+                  {% if n.adjunto %}
+                    <a href="{{ n.adjunto.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Ver</a>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="7" class="text-center p-4 text-muted">No hay notas clínicas.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

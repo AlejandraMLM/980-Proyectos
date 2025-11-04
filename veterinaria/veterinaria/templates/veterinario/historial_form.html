@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="max-width: 1100px;">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="mb-0">Atención veterinaria — {{ mascota.nombre }}</h3>
+    <div class="d-flex gap-2">
+      <a href="{% url 'mascotas:historial' mascota.pk %}" class="btn btn-secondary">Ver historial</a>
+      <a href="{% url 'mascotas:listar' %}" class="btn btn-outline-secondary">Volver</a>
+    </div>
+  </div>
+
+  {# === Resumen de la mascota (solo lectura) === #}
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          {% if mascota.foto %}
+            <img src="{{ mascota.foto.url }}" class="img-fluid rounded" alt="{{ mascota.nombre }}">
+          {% endif %}
+        </div>
+        <div class="col-md-9">
+          <h5 class="mb-1">{{ mascota.nombre }} — {{ mascota.get_especie_display }}{% if mascota.raza %} · {{ mascota.raza }}{% endif %}</h5>
+          <p class="mb-1">
+            {% if mascota.sexo %}<b>Sexo:</b> {{ mascota.get_sexo_display }} · {% endif %}
+            {% if mascota.peso_kg %}<b>Peso:</b> {{ mascota.peso_kg }} kg · {% endif %}
+            {% if mascota.color %}<b>Color:</b> {{ mascota.color }}{% endif %}
+          </p>
+          {% if mascota.fecha_nacimiento %}<p class="mb-1"><b>Nacimiento:</b> {{ mascota.fecha_nacimiento }}</p>{% endif %}
+          {% if mascota.alergias %}<p class="mb-1"><b>Alergias:</b> {{ mascota.alergias }}</p>{% endif %}
+          {% if mascota.condiciones_actuales %}<p class="mb-1"><b>Condiciones actuales:</b> {{ mascota.condiciones_actuales }}</p>{% endif %}
+          {% if mascota.veterinario %}<p class="mb-0"><b>Vet habitual:</b> {{ mascota.veterinario }}</p>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# === Inmunizaciones (solo lectura) === #}
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-light"><strong>Historial de inmunización</strong></div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Edad</th><th>Rabia</th><th>DHPP</th><th>Lyme</th><th>Bordetella</th><th>Lepto</th><th>Influenza</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for v in inmunizaciones %}
+            <tr>
+              <td>{{ v.edad_anios }} año{% if v.edad_anios > 1 %}s{% endif %}</td>
+              <td>{% if v.rabia %}✔{% else %}—{% endif %}</td>
+              <td>{% if v.dhpp %}✔{% else %}—{% endif %}</td>
+              <td>{% if v.lyme %}✔{% else %}—{% endif %}</td>
+              <td>{% if v.bordetella %}✔{% else %}—{% endif %}</td>
+              <td>{% if v.lepto %}✔{% else %}—{% endif %}</td>
+              <td>{% if v.influenza %}✔{% else %}—{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center p-3 text-muted">Sin registros.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {# === Formulario de atención del veterinario === #}
+  <form method="post" enctype="multipart/form-data" class="card shadow-sm border-0">
+    <div class="card-header bg-light"><strong>Registrar atención</strong></div>
+    <div class="card-body">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Fecha</label>
+          {{ form.fecha }}
+        </div>
+
+        {# Si existe NotaClinica: usa 'motivo'; si no, usa 'descripcion' (fallback HV) #}
+        {% if form.motivo %}
+        <div class="col-md-8">
+          <label class="form-label">Motivo / Resumen</label>
+          {{ form.motivo }}
+        </div>
+        {% else %}
+        <div class="col-md-8">
+          <label class="form-label">Motivo / Resumen</label>
+          {{ form.descripcion }}
+        </div>
+        {% endif %}
+
+        <div class="col-12">
+          <label class="form-label">Diagnóstico</label>
+          {{ form.diagnostico }}
+        </div>
+
+        {% if form.tratamiento %}
+        <div class="col-12">
+          <label class="form-label">Tratamiento / Exámenes</label>
+          {{ form.tratamiento }}
+        </div>
+        {% endif %}
+
+        {% if form.medicamentos %}
+        <div class="col-12">
+          <label class="form-label">Medicamentos</label>
+          {{ form.medicamentos }}
+        </div>
+        {% endif %}
+
+        <div class="col-12">
+          <label class="form-label">Adjunto</label>
+          {{ form.adjunto|default:form.foto }}
+          <div class="form-text">JPG/PNG/PDF &lt; 5MB.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+      <a href="{% url 'mascotas:historial' mascota.pk %}" class="btn btn-secondary">Cancelar</a>
+      <button class="btn btn-primary">Guardar atención</button>
+    </div>
+  </form>
+
+  {# Últimos registros (HV) para referencia rápida #}
+  <div class="card shadow-sm mt-4">
+    <div class="card-header bg-light"><strong>Últimos registros del historial</strong></div>
+    <div class="card-body p-0">
+      <ul class="list-group list-group-flush">
+        {% for r in historial %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{{ r.fecha|date:"d/m/Y" }} — {{ r.descripcion|default:"—" }}</span>
+            <small class="text-muted">{{ r.veterinario|default:"" }}</small>
+          </li>
+        {% empty %}
+          <li class="list-group-item text-center text-muted">Sin registros previos.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

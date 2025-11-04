@@ -1,0 +1,112 @@
+{% extends 'administrador/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'administrador/css/reportes.css' %}">
+
+<div class="reportes-wrap">
+  <div class="reportes-header">
+    <h1>Reporte de Citas</h1>
+    <p class="muted">Vista de administración · Filtra y exporta a PDF</p>
+  </div>
+
+  <form class="filtros" method="get" action="">
+    <div class="f-row">
+      <div class="f-col">
+        <label>Desde</label>
+        <input type="date" name="fecha_desde" value="{{ filtros.fecha_desde }}">
+      </div>
+      <div class="f-col">
+        <label>Hasta</label>
+        <input type="date" name="fecha_hasta" value="{{ filtros.fecha_hasta }}">
+      </div>
+      <div class="f-col">
+        <label>Estado</label>
+        <select name="estado">
+          <option value="">Todos</option>
+          {% for key,val in estados_choices.items %}
+            <option value="{{ key }}" {% if filtros.estado == key %}selected{% endif %}>{{ val }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="f-col">
+        <label>Servicio</label>
+        <select name="servicio_id">
+          <option value="">Todos</option>
+          {% for s in servicios %}
+            <option value="{{ s.id }}" {% if filtros.servicio_id|default:'' == s.id|stringformat:'s' %}selected{% endif %}>{{ s.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="f-col">
+        <label>Usuario</label>
+        <input type="text" name="usuario" placeholder="Nombre/usuario/email" value="{{ filtros.usuario }}">
+      </div>
+      <div class="f-col f-actions">
+        <button type="submit" class="btn-primary">Aplicar</button>
+        <a class="btn-secondary" href="{% url 'administrador:reportes' %}">Limpiar</a>
+        <a class="btn-export"
+           href="{% url 'administrador:reportes_pdf' %}?fecha_desde={{ filtros.fecha_desde }}&fecha_hasta={{ filtros.fecha_hasta }}&estado={{ filtros.estado }}&servicio_id={{ filtros.servicio_id }}&usuario={{ filtros.usuario|urlencode }}">
+          Exportar PDF
+        </a>
+      </div>
+    </div>
+  </form>
+
+  {% if resumen %}
+  <div class="chips">
+    {% for item in resumen %}
+      <span class="chip chip-{{ item.estado_code }}">
+        {{ item.estado_label }}: <b>{{ item.total }}</b>
+      </span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha inicio</th>
+            <th>Fecha fin</th>
+            <th>Usuario</th>
+            <th>Servicio</th>
+            <th>Mascota</th>
+            <th>Estado</th>
+            <th>Notas</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in citas %}
+          <tr>
+            <td>#{{ c.id }}</td>
+            <td>{{ c.fecha|date:"Y-m-d H:i" }}</td>
+            <td>{{ c.fecha_fin|date:"Y-m-d H:i" }}</td>
+            <td>
+              {{ c.usuario.get_full_name|default:c.usuario.username }}
+              <div class="muted small">{{ c.usuario.email }}</div>
+            </td>
+            <td>{{ c.servicio.nombre }}</td>
+            <td>{{ c.mascota.nombre|default:"—" }}</td>
+            <td><span class="badge badge-{{ c.estado }}">{{ c.get_estado_display }}</span></td>
+            <td class="notas">{{ c.notas|default:"" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" class="muted center">No hay resultados con los filtros aplicados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">
+      <span class="muted">Generado: {{ ahora|date:"Y-m-d H:i" }}</span>
+      <span class="spacer"></span>
+      <a class="btn-export"
+         href="{% url 'administrador:reportes_pdf' %}?fecha_desde={{ filtros.fecha_desde }}&fecha_hasta={{ filtros.fecha_hasta }}&estado={{ filtros.estado }}&servicio_id={{ filtros.servicio_id }}&usuario={{ filtros.usuario|urlencode }}">
+        Descargar PDF
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

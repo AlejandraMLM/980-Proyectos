@@ -1,0 +1,284 @@
+/* === MyVetPet visual theme (CSS-only) ===
+   Paleta azul/celeste, navbar con logo y HERO full-bleed.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+:root{
+  --brand-1:#2caae0b3; /* celeste */
+  --brand-2:#1a49adc4; /* azul */
+  --brand-3:#0b3a69; /* azul profundo */
+
+  --ink:#0e1726;
+  --muted:#6c7a8a;
+  --bg:#f7f9fc;
+  --card:#ffffff;
+  --ring: rgba(37, 99, 235, .28);
+}
+
+html,body{height:100%}
+body{
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+  color:var(--ink);
+  background:var(--bg);
+  line-height:1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ===== NAVBAR ===== */
+.navbar-medical{
+  background: linear-gradient(90deg, var(--brand-2), var(--brand-1)) !important;
+  box-shadow: 0 10px 30px rgba(11, 58, 105, .25);
+  padding-top: .65rem;
+  padding-bottom: .65rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.navbar-medical .navbar-brand,
+.navbar-medical .nav-link,
+.navbar-medical .dropdown-toggle{
+  color:#f0f9ff !important;
+  font-weight:600;
+}
+.navbar-medical .nav-link{
+  transition:opacity .2s ease, transform .2s ease;
+}
+.navbar-medical .nav-link:hover{
+  opacity:.9;
+  transform: translateY(-1px);
+}
+.navbar-toggler{
+  border-color: rgba(255,255,255,.35)!important;
+}
+
+/* ==== LOGO EN NAVBAR ==== */
+.brand-logo{
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
+}
+/* Opción A: forzar logo blanco sobre barra azul */
+.brand-logo--white{
+  filter:
+    invert(1)
+    brightness(100%)
+    saturate(0)
+    drop-shadow(0 1px 2px rgba(0,0,0,.25));
+  opacity:.98;
+  mix-blend-mode: screen;
+}
+/* Opción B: plaquita blanca detrás del logo */
+.brand-logo--bgwhite{
+  background:#fff;
+  padding:4px 6px;
+  border-radius:9px;
+  box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
+.brand-text{
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: .2px;
+  color:#ffffff;
+}
+.brand-text small{
+  font-weight: 400;
+  opacity: .9;
+  color:#e6f6ff;
+}
+
+/* ===== BOTONES ===== */
+.btn-medical{
+  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+  color:#05202a;
+  font-weight:700;
+  border:none;
+  border-radius: 12px;
+  padding:.65rem 1rem;
+  box-shadow: 0 8px 20px var(--ring);
+}
+.btn-medical:hover{ filter: brightness(0.96); color:#03161c; }
+
+/* Logout */
+.logout-form{ display:inline }
+.logout-btn{ background:none; border:none; color: rgba(255,255,255,.95) }
+.logout-btn:hover{ color:#ffffff }
+
+/* Badges */
+.medical-badge{
+  background: rgba(56,189,248,.15);
+  color: #075985;
+  border: 1px solid rgba(56,189,248,.25);
+  font-weight:700;
+}
+
+/* ===== HERO FULL-BLEED =====
+   ✅ Cambio: dejamos de depender de .container > .row:first-of-type
+   y usamos .hero-row para evitar conflictos con alerts.
+*/
+.hero-row{
+  position:relative;
+  /* FULL BLEED: ocupa todo el ancho visual */
+  width: 100vw;
+  margin-left: 50%;
+  transform: translateX(-50%);
+
+  /* Estética y espaciamiento */
+  background:
+    radial-gradient(1200px 600px at 85% 50%, rgba(56,189,248,.10), transparent 55%),
+    linear-gradient(160deg, #0b3a69 0%, #0a2f57 55%, #0b3a69 100%);
+  color:#ecfeff;
+  overflow:hidden;
+  padding: 90px clamp(16px, 6vw, 96px);
+  margin-top: 12px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.18);
+  border-radius: 0; /* full-bleed sin esquinas */
+}
+@media (min-width: 992px){
+  .hero-row{
+    padding-top: 110px;
+    padding-bottom: 110px;
+  }
+}
+.hero-row .col-12{ z-index:2 }
+.hero-row::after{
+  content:"";
+  position:absolute; right:2%; top:8%;
+  width:520px; height:520px; border-radius:50%;
+  background: radial-gradient(circle at 50% 50%,
+              rgba(56,189,248,.35), rgba(56,189,248,.08) 45%, transparent 60%);
+  filter: blur(2px);
+  opacity:.7;
+  pointer-events:none;
+}
+.hero-row h1{
+  color:#e6fbff;
+  font-weight:800;
+  font-size: clamp(1.9rem, 3.8vw + .7rem, 3.2rem);
+  line-height:1.04;
+  letter-spacing:.2px;
+  text-shadow: 0 2px 14px rgba(0,0,0,.25);
+}
+.hero-row p.lead{
+  color:#b6e7f0;
+  font-weight:500;
+  font-size: clamp(1rem, 1.2vw + .4rem, 1.25rem);
+  margin-top:.35rem;
+}
+
+/* Títulos de sección */
+.container h2{
+  font-weight:800;
+  letter-spacing:.2px;
+}
+
+/* Cards / servicios */
+.servicio-card,
+.card{
+  border: 0;
+  border-radius: 18px;
+  background: var(--card);
+  transition: transform .2s ease, box-shadow .2s ease;
+  box-shadow: 0 2px 0 rgba(2,6,23,.02), 0 12px 25px rgba(2,6,23,.08);
+}
+.servicio-card:hover,
+.card:hover{
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(2,6,23,.18);
+}
+.card img,
+.servicio-card img{
+  width:100%;
+  height:220px;
+  object-fit: cover;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+}
+.card-title{ font-weight:800 }
+.card-text{ color: var(--muted) }
+.card-footer{
+  background: transparent;
+  border-top: 1px solid #eef2f7;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+}
+
+/* Formularios */
+.form-control, .form-select{
+  border-radius: 12px;
+  border:1px solid #e6eef6;
+  box-shadow:none;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+.form-control:focus, .form-select:focus{
+  border-color: var(--brand-2);
+  box-shadow: 0 0 0 6px var(--ring);
+}
+
+/* Tablas */
+.table{
+  background: var(--card);
+  border-radius: 16px;
+  overflow:hidden;
+}
+.table thead th{
+  background:#f4fbff;
+  color:#0f3d4c;
+  font-weight:700;
+  border-bottom:1px solid #e6eef6!important;
+}
+
+/* Footer */
+.footer-medical{
+  background: linear-gradient(180deg, #0b2a36, #071b24);
+  color:#d5f5f8;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+
+/* Utilidades */
+.shadow-soft{ box-shadow: 0 10px 30px rgba(2,6,23,.12)!important }
+.rounded-2xl{ border-radius: 1.25rem!important }
+.text-muted{ color: var(--muted)!important }
+
+/* Carrito */
+.cart-icon{ color:#eafcff }
+.cart-icon .badge{ transform: translate(30%, -30%) }
+
+/* ===== Overrides puntuales (no rompen nada) ===== */
+
+/* 1) Color del titulo "Bienvenido a MyVetPet" en el hero */
+.hero-row h1.display-4{
+  /* color: #e6fbff !important; */   /* celeste claro */
+  /* color: #ffffff !important; */   /* blanco puro */
+  color: #cfe9f1 !important;         /* azul muy claro (recomendado) */
+  text-shadow: 0 2px 14px rgba(0,0,0,.25);
+}
+
+/* 2) Centrar el título de la sección de servicios */
+#services-title{
+  text-align: center;
+}
+
+/* 3) 4 tarjetas por fila en pantallas grandes (>= 992px) */
+@media (min-width: 992px){
+  .services-row .col-md-4{
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+/* === Sticky footer (siempre al fondo) === */
+html, body { height: 100%; }
+
+body{
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* tu footer ya usa .footer-medical */
+.footer-medical{
+  margin-top: auto;     /* empuja el footer hacia abajo */
+  flex: 0 0 auto;       /* evita que se estire */
+}
