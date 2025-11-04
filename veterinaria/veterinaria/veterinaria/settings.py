@@ -62,14 +62,14 @@ TEMPLATES = [
     },
 ]
 
-# CONFIGURACION DE BASE DE DATOS
+# CONFIGURACION DE BASE DE DATOS (CORREGIDO PARA DOCKER)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'veterinaria_db',
-        'USER': 'postgres',
-        'PASSWORD': 'koala',
-        'HOST': 'localhost',
+        'NAME': os.environ.get('DATABASE_NAME', 'veterinaria_db'),
+        'USER': os.environ.get('DATABASE_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'koala'), # Lee la variable de Docker, usa 'koala' si no existe
+        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),     # Lee 'db' de Docker, usa 'localhost' si no existe
         'PORT': '5432',
     }
 }

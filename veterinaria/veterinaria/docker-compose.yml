@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # SERVICIO 1: BASE DE DATOS POSTGRESQL
+  db:
+    image: postgres:15-alpine
+    container_name: veterinaria_db_container
+    restart: always
+    environment:
+      # Estos valores crean la DB en el contenedor de PostgreSQL
+      POSTGRES_DB: veterinaria_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: koala  # ¡Usamos tu contraseña de settings.py!
+    volumes:
+      # Montaje para datos persistentes de la DB en tu disco local
+      - postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # SERVICIO 2: APLICACIÓN DJANGO
+  web:
+    build: .  # Usa el Dockerfile en este directorio
+    container_name: veterinaria_web_container
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      # Montaje del código: refleja los cambios locales instantáneamente
+      - .:/usr/src/app
+    ports:
+      # Mapea el puerto del contenedor (8000) a tu PC (8000)
+      - "8000:8000"
+    depends_on:
+      # Espera a que la DB esté "healthy" (lista para recibir conexiones)
+      db:
+        condition: service_healthy
+    environment:
+      # Estos valores son leídos por tu settings.py para CONECTARSE
+      DATABASE_HOST: db            # HOST para Django: 'db' (el nombre del servicio)
+      DATABASE_NAME: veterinaria_db
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: koala     # ¡Usamos tu contraseña de settings.py!
+
+# VOLUMENES PERSISTENTES
+volumes:
+  postgres_data:
